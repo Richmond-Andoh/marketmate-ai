@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: marketmate-ai
+    runtime: node
+    plan: free # Upgrade to "starter" to avoid cold-start spin-down.
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: AI_PROVIDER
+        value: backboard
+      - key: AI_MODEL
+        value: openai/gpt-oss-20b
+      - key: AI_TIMEOUT_MS
+        value: "20000"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "10"
+      - key: BACKBOARD_API_KEY
+        sync: false # Secret: set in the Render dashboard, never committed.
