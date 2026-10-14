@@ -105,4 +105,18 @@ describe("POST /api/generate", () => {
     );
     expect(second.status).toBe(429);
   });
+
+  it("rejects oversized bodies with 413", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productName: "Handmade Leather Wallet",
+          features: "x".repeat(20_000),
+        }),
+      }),
+    );
+    expect(res.status).toBe(413);
+  });
 });

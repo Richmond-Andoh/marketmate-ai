@@ -6,6 +6,16 @@ import { chatCompletion, AiError } from "@/lib/ai/client";
 import { parseGenerationOutput } from "@/lib/ai/parse";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
+/** Max request body: validated input fields total ~1.5KB; 16KB is generous. */
+const MAX_BODY_BYTES = 16_384;
+
+function bodyTooLarge(): Response {
+  return NextResponse.json(
+    { error: "Request body is too large." },
+    { status: 413 },
+  );
+}
+
 export async function POST(request: Request) {
   // 1. Rate limit per IP.
   const ip = clientIp(request);
@@ -18,9 +28,19 @@ export async function POST(request: Request) {
   }
 
   // 2. Parse + validate input (the real gate; client validation is UX only).
+  // Guard body size before parsing: Content-Length fast path + exact check
+  // for chunked requests without the header.
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
+    return bodyTooLarge();
+  }
   let body: unknown;
   try {
-    body = await request.json();
+    const text = await request.text();
+    if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) {
+      return bodyTooLarge();
+    }
+    body = JSON.parse(text);
   } catch {
     return NextResponse.json(
       { error: "Request body must be valid JSON." },

@@ -4,22 +4,16 @@ import { useState } from "react";
 import type { GenerationOutput } from "@/lib/schemas";
 
 function CopyButton({ text, label }: { text: string; label: string }) {
-  const [copied, setCopied] = useState(false);
+  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
+      setState("copied");
     } catch {
-      // Fallback for non-secure contexts: select via textarea.
-      const el = document.createElement("textarea");
-      el.value = text;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      el.remove();
+      setState("failed");
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setTimeout(() => setState("idle"), 1500);
   }
 
   return (
@@ -27,31 +21,21 @@ function CopyButton({ text, label }: { text: string; label: string }) {
       type="button"
       onClick={copy}
       aria-label={`Copy ${label}`}
-      className="shrink-0 rounded-md border border-zinc-300 px-2 py-1 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+      className="shrink-0 rounded-md border border-zinc-300 px-3 min-h-[36px] py-1 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 active:scale-[0.97] dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
     >
-      {copied ? "Copied!" : "Copy"}
+      {state === "copied" ? "Copied!" : state === "failed" ? "Copy failed" : "Copy"}
     </button>
   );
 }
 
-function ResultCard({
-  title,
-  body,
-  mono = false,
-}: {
-  title: string;
-  body: string;
-  mono?: boolean;
-}) {
+function ResultCard({ title, body }: { title: string; body: string }) {
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mb-2 flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
         <CopyButton text={body} label={title} />
       </div>
-      <p
-        className={`whitespace-pre-wrap text-sm leading-relaxed text-zinc-700 dark:text-zinc-300 ${mono ? "" : ""}`}
-      >
+      <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
         {body}
       </p>
     </section>
@@ -83,10 +67,13 @@ export default function Results({ output }: { output: GenerationOutput }) {
           </h3>
           <CopyButton text={output.captions.join("\n\n")} label="captions" />
         </div>
-        <ol className="flex flex-col gap-3">
+        <ol className="flex flex-col gap-4 sm:gap-3">
           {output.captions.map((caption, i) => (
-            <li key={i} className="flex items-start justify-between gap-2">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+            <li
+              key={i}
+              className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+            >
+              <p className="min-w-0 flex-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
                 <span className="mr-1 font-semibold">{i + 1}.</span>
                 {caption}
               </p>
