@@ -63,6 +63,22 @@ export const GenerationOutputSchema = z.object({
 
 export type GenerationOutput = z.infer<typeof GenerationOutputSchema>;
 
+/**
+ * Vision "describe" output: visible-only facts used to pre-fill the form.
+ * productName + features are required (same minimums as ProductInput) so a
+ * vague photo fails validation instead of silently prefilling junk.
+ * The form stays the gate — the user reviews and edits before generating.
+ */
+export const DescribeOutputSchema = z.object({
+  productName: trimmed(2, 80, "Product name"),
+  category: optionalTrimmed(60, "Category"),
+  features: trimmed(10, 1000, "Features / details"),
+  price: optionalTrimmed(40, "Price"),
+  targetAudience: optionalTrimmed(120, "Target audience"),
+});
+
+export type DescribeOutput = z.infer<typeof DescribeOutputSchema>;
+
 /** Flatten Zod issues into { fieldName: firstMessage } for form display. */
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};

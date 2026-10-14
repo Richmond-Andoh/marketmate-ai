@@ -12,9 +12,11 @@ import {
   TONES,
   TONE_LABELS,
   fieldErrors,
+  type DescribeOutput,
   type GenerationOutput,
   type ProductInput,
 } from "@/lib/schemas";
+import PhotoFill from "@/components/ui/PhotoFill";
 import Results from "@/components/ui/Results";
 
 /** Client timeout: longer than the server AI_TIMEOUT_MS so a 504 surfaces first. */
@@ -99,6 +101,7 @@ export default function ProductForm() {
   const [pending, setPending] = useState(false);
   const [output, setOutput] = useState<GenerationOutput | null>(null);
   const [lastPayload, setLastPayload] = useState<ProductInput | null>(null);
+  const [prefillNote, setPrefillNote] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,6 +115,7 @@ export default function ProductForm() {
   ) {
     const { name, value } = e.target;
     setValues((v) => ({ ...v, [name]: value }));
+    setPrefillNote(null);
     setErrors((prev) => {
       if (!(name in prev)) return prev;
       const next = { ...prev };
@@ -124,6 +128,23 @@ export default function ProductForm() {
     setValues(EXAMPLE);
     setErrors({});
     setFormError(null);
+    setPrefillNote(null);
+  }
+
+  function applyPrefill(data: DescribeOutput) {
+    setValues((v) => ({
+      ...v,
+      productName: data.productName,
+      category: data.category ?? v.category,
+      features: data.features,
+      price: data.price ?? v.price,
+      targetAudience: data.targetAudience ?? v.targetAudience,
+    }));
+    setErrors({});
+    setFormError(null);
+    setPrefillNote(
+      "Photo read ✓ — review the filled details, fix anything, then generate.",
+    );
   }
 
   async function submitPayload(payload: ProductInput) {
@@ -213,11 +234,21 @@ export default function ProductForm() {
             </button>
           </div>
 
+          <PhotoFill onPrefill={applyPrefill} disabled={pending} />
+
+          {prefillNote && (
+            <p
+              role="status"
+              className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-sm font-medium text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
+            >
+              {prefillNote}
+            </p>
+          )}
+
           <div>
             <label htmlFor="productName" className={labelClass}>
               Product name <span className="text-emerald-600">*</span>
-            </label>
-            <input
+            </label>            <input
               id="productName"
               name="productName"
               value={values.productName}

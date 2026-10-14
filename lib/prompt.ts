@@ -64,14 +64,51 @@ export function buildUserPrompt(input: ProductInput): string {
   return `Create sales content for the following product.\n\n${lines.join("\n")}\n\nReturn only the JSON object.`;
 }
 
+export interface TextPart {
+  type: "text";
+  text: string;
+}
+
+export interface ImagePart {
+  type: "image_url";
+  image_url: { url: string };
+}
+
+export type MessageContent = string | Array<TextPart | ImagePart>;
+
 export interface ChatMessage {
   role: "system" | "user";
-  content: string;
+  content: MessageContent;
 }
 
 export function buildMessages(input: ProductInput): ChatMessage[] {
   return [
     { role: "system", content: SYSTEM_PROMPT },
     { role: "user", content: buildUserPrompt(input) },
+  ];
+}
+
+export const DESCRIBE_SYSTEM_PROMPT = `You are MarketMate's product spotter. You look at ONE product photo and list ONLY facts you can actually see.
+
+Rules:
+- Describe only what is visible: product type, colours, materials, visible text or labels, packaging, quantity.
+- Never invent brand names, prices, specifications or claims. If no price tag is clearly readable, omit "price".
+- If no saleable product is clearly visible (blurry photo, screenshot, random scene), return exactly {"error":"no_product"} and nothing else.
+- Otherwise respond with a single JSON object and nothing else: no markdown, no code fences, no commentary.
+- Keys: "productName" (short, 2-12 words), "category" (optional), "features" (one or two sentences, at least 10 characters), "price" (only if clearly readable, optional), "targetAudience" (only if obvious, optional). Omit keys you cannot fill honestly.`;
+
+export function buildDescribeMessages(imageDataUrl: string): ChatMessage[] {
+  return [
+    { role: "system", content: DESCRIBE_SYSTEM_PROMPT },
+    {
+      role: "user",
+      content: [
+        {
+          type: "text",
+          text: "What product is in this photo? Return only the JSON object.",
+        },
+        { type: "image_url", image_url: { url: imageDataUrl } },
+      ],
+    },
   ];
 }

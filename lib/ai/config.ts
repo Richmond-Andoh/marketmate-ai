@@ -69,3 +69,12 @@ export function getAiConfig(env: NodeJS.ProcessEnv = process.env): AiConfig {
 export function chatCompletionsUrl(baseUrl: string): string {
   return `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
 }
+
+/**
+ * Vision model for the photo-describe step. Same provider/base URL/key as
+ * the text model — only the model id differs. Defaults to Qwen 3.8 27B,
+ * the vision-capable open-weight model on Groq's free tier.
+ */
+export function getVisionModel(env: NodeJS.ProcessEnv = process.env): string {
+  return env.AI_VISION_MODEL?.trim() || "qwen/qwen3.8-27b";
+}

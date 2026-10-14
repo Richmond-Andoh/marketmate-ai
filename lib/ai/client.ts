@@ -36,6 +36,7 @@ export async function chatCompletion(
   messages: ChatMessage[],
   config: AiConfig,
   fetchImpl: FetchImpl = fetch,
+  opts: { temperature?: number } = {},
 ): Promise<string> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), config.timeoutMs);
@@ -52,7 +53,7 @@ export async function chatCompletion(
         body: JSON.stringify({
           model: config.model,
           messages,
-          temperature: 0.7,
+          temperature: opts.temperature ?? 0.7,
           response_format: { type: "json_object" },
         }),
         signal: controller.signal,
