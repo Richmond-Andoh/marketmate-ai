@@ -20,7 +20,7 @@ const STEPS = [
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center px-4 pb-16 sm:px-6">
+    <main className="flex flex-1 flex-col items-center bg-zinc-50 px-4 pb-16 dark:bg-black">
       {/* Hero */}
       <div className="relative flex w-full max-w-3xl flex-col items-center gap-4 overflow-hidden pt-10 text-center sm:pt-16">
         <div

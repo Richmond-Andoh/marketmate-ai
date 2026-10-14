@@ -54,10 +54,10 @@ const TONE_DOT: Record<Values["tone"], string> = {
 const inputClass = (invalid: boolean) =>
   // text-base (16px) prevents iOS Safari auto-zoom on focus; min-h hits the
   // 44px recommended touch target.
-  `w-full rounded-xl border bg-zinc-50/50 px-3.5 py-3 min-h-[44px] text-base text-zinc-900 shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100 dark:bg-zinc-900/60 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-950 ${
+  `w-full rounded-xl border-2 bg-white px-3.5 py-3 min-h-[44px] text-base font-normal text-zinc-900 shadow-sm outline-none transition placeholder:font-normal placeholder:text-zinc-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-950 ${
     invalid
       ? "border-red-500 dark:border-red-500"
-      : "border-zinc-200 dark:border-zinc-800"
+      : "border-zinc-300 dark:border-zinc-700"
   }`;
 
 const labelClass = "mb-1.5 block text-sm font-semibold";
@@ -353,7 +353,7 @@ export default function ProductForm() {
                     className={`flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition active:scale-[0.97] ${
                       active
                         ? "border-emerald-600 bg-emerald-600 text-white shadow-md shadow-emerald-600/25"
-                        : "border-zinc-200 bg-white text-zinc-700 hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-emerald-800"
+                        : "border-zinc-300 bg-white text-zinc-700 hover:border-emerald-400 hover:bg-emerald-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-emerald-800"
                     }`}
                   >
                     <span
